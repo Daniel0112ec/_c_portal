@@ -1,0 +1,81 @@
+#include <raylib.h>
+#include <stdio.h>
+
+#define MAX_OPTIONS 3
+
+int ShowMenu(void);//Funcao que mostra o menu inicial selecionável com setas
+
+
+int main()
+{
+    int opcao_menu = ShowMenu();
+
+    if (opcao_menu == 0)//Opção Novo Jogo
+    {
+        //FAZER AQUI: CARREGAMENTO DO NÍVEL 1
+        //            LOOP DO JOGO
+
+    }else
+        if (opcao_menu == 1)//Opção Carregar Jogo Salvo
+        {
+            //FAZER AQUI: CARREGAMENTO DE JOGO SALVO
+
+        }else//Opção Sair do jogo
+            printf("saiu");
+
+    return 0;
+}
+
+int ShowMenu(void)//Função para exibir o menu e obter a escolha do usuário via setas
+{
+    int screenWidth = 1200;
+    int screenHeight = 800;
+
+    InitWindow(screenWidth, screenHeight, "Menu Inicial");//Inicializa a janela do Raylib com largura, altura e título
+
+    int selectedOption = 0;//Opção selecionada pelo usuário inicializada em 0
+
+    while (!WindowShouldClose())//Loop do menu
+    {
+        BeginDrawing();//Inicia o processo de desenho na tela
+
+        ClearBackground(RAYWHITE);//Preenche o fundo da tela com a cor branca
+
+        DrawText("Menu Inicial", screenWidth/2 - MeasureText("Menu Inicial", 40)/2, 100, 40, DARKGRAY);//Desenha "menu"
+
+        const char* options[MAX_OPTIONS] = {"Novo Jogo",
+                                            "Carregar Jogo Salvo",
+                                            "Sair do Jogo"};//Array de ponteiros, strings como elementos
+
+        for (int i = 0; i < MAX_OPTIONS; i++)//Desenhar opções
+        {
+            if (i == selectedOption)
+                DrawText(TextFormat("-> %s", options[i]), screenWidth/2 - MeasureText(options[i], 20)/1, 220 + 40 * i, 40, MAROON);//Desenha as opções destacando a selecionada
+                else
+                    DrawText(options[i], screenWidth/2 - MeasureText(options[i], 20)/1, 220 + 40 * i, 40, DARKGRAY);//Desenha as opções não selecionadas
+        }
+
+        EndDrawing();//Finaliza o processo de desenho na tela
+
+        if (IsKeyPressed(KEY_UP))//Verificar entrada do usuário
+        {
+            selectedOption--;//Decrementa a opção selecionada
+
+            if (selectedOption < 0)//Se a opção for menor que 0, volta para a última opção
+                selectedOption = MAX_OPTIONS - 1;
+        } else
+            if (IsKeyPressed(KEY_DOWN))//Verificar entrada do usuário
+            {
+                selectedOption++;//Incrementa a opção selecionada
+                if (selectedOption >= MAX_OPTIONS)//Se a opção for maior ou igual ao número máximo de opções, volta para a primeira opção
+                    selectedOption = 0;
+            }
+
+        if (IsKeyPressed(KEY_ENTER))//Verificar entrada do usuário
+            break;//O usuário fez sua escolha
+    }
+
+    CloseWindow();
+
+    return selectedOption;
+}
