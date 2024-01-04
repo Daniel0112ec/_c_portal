@@ -1,0 +1,148 @@
+/*  Programa: Versao simplificada para aprendizado do jogo Portal.
+    Teste 2: Menu, Loop do jogo, Cabecalho, Movimento do Jogador.  */
+#include <raylib.h>
+#include <stdio.h>
+
+#define MAX_OPTIONS 3
+
+typedef struct//Estrutura do jogador - complementar variáveis
+{
+    int fase;
+    int vidas;
+    int alavancas;
+} Jogador;
+
+int ShowMenu(void);//Mostra o Menu Inicial
+void jogo(void);//Executa o Loop do Jogo
+
+int main()
+{
+    int opcao_menu = ShowMenu();//Mostra o Menu Inicial e salva a opcao do usuario
+
+    if (opcao_menu == 0)//Opcao Novo Jogo
+    {
+        //FAZER AQUI: CARREGAMENTO DE NÍVEL
+
+        jogo();
+    }
+    else
+        if (opcao_menu == 1)//Opcao Carregar Jogo Salvo
+        {
+        //FAZER AQUI: CARREGAMENTO DE JOGO SALVO
+        }
+        else//Opcao Sair do jogo
+        {
+        printf("saiu");
+        }
+
+    //FAZER AQUI: TELA DE GAME OVER OU DE VITÓRIA
+
+    return 0;
+}
+
+int ShowMenu(void)//Mostra o Menu Inicial
+{
+    int screenWidth = 1200;
+    int screenHeight = 800;
+
+    InitWindow(screenWidth, screenHeight, "Menu Inicial");//Inicializa a janela do Raylib com largura, altura e título
+
+    int selectedOption = 0;//Opção selecionada pelo usuário inicializada em 0
+
+    while (!WindowShouldClose())//Loop do menu
+    {
+        BeginDrawing();//Inicia o processo de desenho na tela
+
+        ClearBackground(RAYWHITE);//Desenha o fundo da tela
+
+        DrawText("Menu Inicial", screenWidth/2 - MeasureText("Menu Inicial", 40)/2, 100, 40, DARKGRAY);//Desenha "menu"
+
+        const char* options[MAX_OPTIONS] = {"Novo Jogo",
+                                            "Carregar Jogo Salvo",
+                                            "Sair do Jogo"};//Array de ponteiros, strings como elementos
+
+        for (int i = 0; i < MAX_OPTIONS; i++)//Desenhar opções
+        {
+            if (i == selectedOption)
+                DrawText(TextFormat("-> %s", options[i]), screenWidth/2 - MeasureText(options[i], 20)/1, 220 + 40 * i, 40, MAROON);//Desenha as opções destacando a selecionada
+                else
+                    DrawText(options[i], screenWidth/2 - MeasureText(options[i], 20)/1, 220 + 40 * i, 40, DARKGRAY);//Desenha as opções não selecionadas
+        }
+
+        EndDrawing();//Finaliza o processo de desenho na tela
+
+        if (IsKeyPressed(KEY_UP))//Verificar entrada do usuario
+        {
+            selectedOption--;//Decrementa a opcao selecionada
+
+            if (selectedOption < 0)//Se a opcao for menor que 0, volta para a ultima opcao
+                selectedOption = MAX_OPTIONS - 1;
+        } else
+            if (IsKeyPressed(KEY_DOWN))//Verificar entrada do usuario
+            {
+                selectedOption++;//Incrementa a opcao selecionada
+                if (selectedOption >= MAX_OPTIONS)//Se a opcao for maior ou igual ao numero maximo de opcoes, volta para a primeira opcao
+                    selectedOption = 0;
+            }
+
+        if (IsKeyPressed(KEY_ENTER))//Verificar entrada do usuario
+            break;//O usuario fez sua escolha
+    }
+
+    CloseWindow();
+
+    return selectedOption;
+}
+
+void jogo(void)
+{
+    int fase = 1, vidas = 3, alavancas = 1;//Substituir depois pelas variaveis da struct
+    char texto[50];
+    const int screenWidth = 1200;
+    const int screenHeight = 800;
+    const int headerHeight = 60; // Altura do cabecalho
+
+    InitWindow(screenWidth, screenHeight, "Jogo");
+
+    Texture2D playerTexture = LoadTexture("player_up.png");//Carrega a imagem do jogador
+
+    int playerX = 0;
+    int playerY = headerHeight;//Posicao inicial do jogador abaixo do cabecalho
+    int playerSpeed = 20;
+
+    bool exitGame = false;
+
+    while (!WindowShouldClose() && !exitGame)//Condicoes de saida do jogo
+    {
+        if (IsKeyPressed(KEY_D) && playerX + playerTexture.width < screenWidth)
+            playerX += playerSpeed;
+
+        if (IsKeyPressed(KEY_A) && playerX > 0)
+            playerX -= playerSpeed;
+
+        if (IsKeyPressed(KEY_W) && playerY > headerHeight)
+            playerY -= playerSpeed;
+
+        if (IsKeyPressed(KEY_S) && playerY + playerTexture.height < screenHeight)
+            playerY += playerSpeed;
+
+        BeginDrawing();
+
+        ClearBackground(RAYWHITE);
+
+        DrawRectangle(0, 0, screenWidth, headerHeight, PURPLE);//Desenha o cabecalho com fundo roxo
+
+        sprintf(texto, "Fase: %d   Vidas: %d   Alavancas: %d", fase, vidas, alavancas);//Cria a string do cabecalho
+        DrawText(texto, 30, 10, 40, WHITE);//Imprime cabecalho
+
+        DrawTexture(playerTexture, playerX, playerY, WHITE);//Desenha o jogador
+
+        EndDrawing();
+
+        if (vidas < 1)//Condicao de Game Over
+            exitGame = true;
+    }
+
+    UnloadTexture(playerTexture);//Exclui a imagem da memoria
+    CloseWindow();
+}
