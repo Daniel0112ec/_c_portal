@@ -1,0 +1,188 @@
+/*  Programa: Versao simplificada para aprendizado do jogo Portal.
+    Teste 3: Mescla (Menu, Loop do jogo, Cabecalho, Movimento do Jogador) com (Mapa de Teste) feito pela Larissa.  */
+#include <raylib.h>
+#include <stdio.h>
+
+#define LARGURA 1200
+#define ALTURA 600
+#define A_MAPA 30
+#define L_MAPA 60
+#define MAX_OPTIONS 3
+
+typedef struct//Estrutura do jogador - complementar variaveis
+{
+    int fase;
+    int vidas;
+    int alavancas;
+} Jogador;
+
+int desenhaMenu(void);//Mostra o Menu Inicial
+void jogo(Jogador *player);//Executa o jogo passando um ponteiro para a struct Jogador
+
+int main()
+{
+    SetTargetFPS(20);
+    int opcao_menu = desenhaMenu();//Mostra o Menu Inicial e salva a opcao do usuario
+
+    if (opcao_menu == 0)//Opcao Novo Jogo
+    {
+        //FAZER AQUI: CARREGAMENTO DE NIVEL
+
+        Jogador player = {1, 3, 1}; // Inicializa a struct Jogador
+        jogo(&player); // Passa o endereço da struct para a funcao jogo
+    }
+    else
+        if (opcao_menu == 1)//Opcao Carregar Jogo Salvo
+        {
+        //FAZER AQUI: CARREGAMENTO DE JOGO SALVO
+        }
+        else//Opcao Sair do jogo
+        {
+        printf("saiu");
+        }
+
+    //FAZER AQUI: TELA DE GAME OVER OU DE VITORIA
+
+    return 0;
+}
+
+int desenhaMenu(void)//Mostra o Menu Inicial
+{
+    int screenWidth = 1200;
+    int screenHeight = 600;
+
+    InitWindow(screenWidth, screenHeight, "Menu Inicial");//Inicializa a janela do Raylib com largura, altura e titulo
+
+    int selectedOption = 0;//Opcao selecionada pelo usuario inicializada em 0
+
+    while (!WindowShouldClose())//Loop do menu
+    {
+        BeginDrawing();//Inicia o processo de desenho na tela
+
+        ClearBackground(WHITE);//Desenha o fundo da tela
+
+        DrawText("Menu Inicial", screenWidth/2 - MeasureText("Menu Inicial", 40)/2, 100, 40, DARKGRAY);//Desenha "menu"
+
+        const char* options[MAX_OPTIONS] = {"Novo Jogo", "Carregar Jogo Salvo", "Sair do Jogo"};//Array de ponteiros para armazenar as strings do menu
+
+        for (int i = 0; i < MAX_OPTIONS; i++)//Desenhar opcoes
+        {
+            if (i == selectedOption)
+                DrawText(TextFormat("-> %s", options[i]), screenWidth/2 - MeasureText(options[i], 20)/1, 220 + 40 * i, 40, MAROON);//Desenha as opcoes destacando a selecionada
+                else
+                    DrawText(options[i], screenWidth/2 - MeasureText(options[i], 20)/1, 220 + 40 * i, 40, DARKGRAY);//Desenha as opcoes não selecionadas
+        }
+
+        EndDrawing();//Finaliza o processo de desenho na tela
+
+        if (IsKeyPressed(KEY_UP))//Verificar entrada do usuario
+        {
+            selectedOption--;//Decrementa a opcao selecionada
+
+            if (selectedOption < 0)//Se a opcao for menor que 0, volta para a ultima opcao
+                selectedOption = MAX_OPTIONS - 1;
+        } else
+            if (IsKeyPressed(KEY_DOWN))//Verificar entrada do usuario
+            {
+                selectedOption++;//Incrementa a opcao selecionada
+                if (selectedOption >= MAX_OPTIONS)//Se a opcao for maior ou igual ao numero maximo de opcoes, volta para a primeira opcao
+                    selectedOption = 0;
+            }
+
+        if (IsKeyPressed(KEY_ENTER))//Verificar entrada do usuario
+            break;//O usuario fez sua escolha
+    }
+
+    CloseWindow();
+
+    return selectedOption;
+}
+
+void jogo(Jogador *player)
+{
+    char texto[50];
+    const int screenWidth = 1200;
+    const int screenHeight = 660;
+    const int headerHeight = 60;//Altura do cabecalho
+
+    char mapa[A_MAPA][L_MAPA]= {
+'W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','W',
+'W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'};
+
+    InitWindow(screenWidth, screenHeight, "Jogo");
+
+    Texture2D playerTexture = LoadTexture("player_up.png");//Carrega a imagem do jogador
+
+    int playerX = 0;
+    int playerY = headerHeight;//Posicao inicial do jogador abaixo do cabecalho
+    int playerSpeed = 20;
+
+    bool exitGame = false;
+
+    while (!WindowShouldClose() && !exitGame)//Loop do jogo - Condicoes de saida do jogo
+    {
+        if (IsKeyDown(KEY_D) && playerX + playerTexture.width < screenWidth)
+            playerX += playerSpeed;
+
+        if (IsKeyDown(KEY_A) && playerX > 0)
+            playerX -= playerSpeed;
+
+        if (IsKeyDown(KEY_W) && playerY > headerHeight)
+            playerY -= playerSpeed;
+
+        if (IsKeyDown(KEY_S) && playerY + playerTexture.height < screenHeight)
+            playerY += playerSpeed;
+
+        BeginDrawing();
+
+        ClearBackground(WHITE);
+
+        DrawRectangle(0, 0, screenWidth, headerHeight, PURPLE);//Desenha o cabecalho com fundo roxo
+
+        sprintf(texto, "Fase: %d   Vidas: %d   Alavancas: %d", player->fase, player->vidas, player->alavancas);//Cria a string do cabecalho
+        DrawText(texto, 30, 10, 40, WHITE);//Imprime cabecalho
+
+        DrawTexture(playerTexture, playerX, playerY, WHITE);//Desenha o jogador
+
+        EndDrawing();
+
+        if (player->vidas < 1)//Condicao de Game Over
+            exitGame = true;
+
+        for (int i = 0; i < A_MAPA; i++)//Desenha as paredes
+            for (int j = 0; j < L_MAPA; j++)
+                if (mapa[i][j] == 'W')
+                    DrawRectangle(j * 20, i * 20 + headerHeight, 20, 20, ORANGE);//Ajusta a posicao vertical das paredes para abaixo do cabecalho
+    }
+
+    UnloadTexture(playerTexture);//Exclui a imagem da memoria
+    CloseWindow();
+}
